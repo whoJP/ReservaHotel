@@ -1,0 +1,41 @@
+﻿@model ReservaHotel.Models.Reserva
+
+@{
+    ViewData["Title"] = "Cancelar Reserva";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4><i class="bi bi-exclamation-triangle"></i> Cancelar Reserva</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">¿Confirmas la cancelación de esta reserva?</p>
+                    <dl class="row">
+                        <dt class="col-sm-4">Hotel:</dt>
+                        <dd class="col-sm-8">@Model.Hotel?.Nombre</dd>
+                        <dt class="col-sm-4">Fecha Inicio:</dt>
+                        <dd class="col-sm-8">@Model.FechaInicio.ToString("dd/MM/yyyy")</dd>
+                        <dt class="col-sm-4">Fecha Fin:</dt>
+                        <dd class="col-sm-8">@Model.FechaFin.ToString("dd/MM/yyyy")</dd>
+                        <dt class="col-sm-4">Noches:</dt>
+                        <dd class="col-sm-8">@Model.TotalNoches</dd>
+                    </dl>
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-x-circle"></i> Sí, Cancelar Reserva
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> No, Volver
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
