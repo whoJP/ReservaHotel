@@ -1,0 +1,29 @@
+﻿@model ReservaHotel.ViewModels.DashboardVM
+
+<div class="container mt-4">
+    <h2>Panel de Control (Admin)</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white p-3">
+                <h3>@Model.TotalHoteles</h3>
+                <p>Hoteles Registrados</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white p-3">
+                <h3>@Model.TotalReservas</h3>
+                <p>Reservas Totales</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white p-3">
+                <h3>@Model.TotalUsuarios</h3>
+                <p>Usuarios</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <a asp-action="DescargarPDF" class="btn btn-danger">Generar Reporte PDF</a>
+    </div>
+</div>
