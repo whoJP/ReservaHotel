@@ -1,25 +1,36 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ReservaHotel.Data;
+using ReservaHotel.Models; // Asegúrate de tener esta línea para ApplicationUser
 using Rotativa.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// 1. Configuración de la Base de Datos
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+// 2. CONFIGURACIÓN DE IDENTITY (CORREGIDA)
+// Cambiamos IdentityUser por ApplicationUser y agregamos .AddRoles<IdentityRole>()
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
+    options.SignIn.RequireConfirmedAccount = false; // Cambiado a false para facilitar pruebas en el lab
+    options.Password.RequireDigit = false;          // Opcional: hace las contraseñas más simples para el proyecto
+    options.Password.RequiredLength = 4;
+})
+    .AddRoles<IdentityRole>() // ¡IMPORTANTE para el Dashboard de Admin!
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
 builder.Services.AddControllersWithViews();
 
-RotativaConfiguration.Setup(builder.Environment.WebRootPath, "Rotativa");
+// 3. Configuración de Rotativa (PDF)
+// Asegúrate de que la carpeta "Rotativa" exista en wwwroot
+//RotativaConfiguration.Setup(builder.Environment.WebRootPath, "Rotativa");
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// 4. Pipeline de HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -27,23 +38,21 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // Importante para cargar CSS/JS de Bootstrap
+
 app.UseRouting();
 
+app.UseAuthentication(); // ¡DEBE ir antes de Authorization!
 app.UseAuthorization();
-
-app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapRazorPages()
-   .WithStaticAssets();
+app.MapRazorPages();
 
 app.Run();
