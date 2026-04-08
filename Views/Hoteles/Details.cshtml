@@ -1,0 +1,36 @@
+﻿@model ReservaHotel.Models.Hotel
+
+@{
+    ViewData["Title"] = "Detalles del Hotel";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white d-flex justify-content-between">
+                    <h4 class="mb-0"><i class="bi bi-building"></i> @Model.Nombre</h4>
+                    <span class="badge bg-light text-dark fs-6">$@Model.PrecioNoche.ToString("N2") / noche</span>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Dirección:</dt>
+                        <dd class="col-sm-9">@Model.Direccion</dd>
+                        <dt class="col-sm-3">Descripción:</dt>
+                        <dd class="col-sm-9">@Model.Descripcion</dd>
+                        <dt class="col-sm-3">Total Reservas:</dt>
+                        <dd class="col-sm-9">@Model.Reservas.Count</dd>
+                    </dl>
+                    <div class="d-flex gap-2 mt-3">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Volver
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

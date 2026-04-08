@@ -1,0 +1,74 @@
+﻿@model IEnumerable<ReservaHotel.Models.Hotel>
+
+@{
+    ViewData["Title"] = "Hoteles Disponibles";
+}
+
+
+<div class="bg-primary text-white py-5 mb-5 rounded-3">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold">
+            <i class="bi bi-building-fill"></i> ReservaHotel
+        </h1>
+        <p class="lead">Encuentra y reserva el hotel perfecto para ti</p>
+        @if (!User.Identity!.IsAuthenticated)
+        {
+            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-light btn-lg me-2">
+                <i class="bi bi-person-plus"></i> Regístrate Gratis
+            </a>
+            <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+            </a>
+        }
+    </div>
+</div>
+
+<div class="container">
+    <h2 class="mb-4">🏨 Hoteles Disponibles</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            No hay hoteles disponibles en este momento.
+        </div>
+    }
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var hotel in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-building"></i> @hotel.Nombre</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">
+                            <i class="bi bi-geo-alt"></i> @hotel.Direccion
+                        </p>
+                        <p>@hotel.Descripcion</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-success fs-5">
+                            $@hotel.PrecioNoche.ToString("N2") <small class="text-muted fs-6">/noche</small>
+                        </span>
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Cliente"))
+                        {
+                            <a asp-controller="Reservas" asp-action="Create"
+                               asp-route-hotelId="@hotel.Id"
+                               class="btn btn-primary btn-sm">
+                                <i class="bi bi-calendar-check"></i> Reservar
+                            </a>
+                        }
+                        else if (!User.Identity.IsAuthenticated)
+                        {
+                            <a asp-area="Identity" asp-page="/Account/Login"
+                               class="btn btn-outline-primary btn-sm">
+                                Inicia sesión para reservar
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

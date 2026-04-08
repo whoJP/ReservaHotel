@@ -1,0 +1,43 @@
+﻿@model ReservaHotel.Models.Hotel
+
+@{
+    ViewData["Title"] = "Eliminar Hotel";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">¿Estás seguro de eliminar el siguiente hotel?</p>
+                    <dl class="row">
+                        <dt class="col-sm-4">Nombre:</dt>
+                        <dd class="col-sm-8">@Model.Nombre</dd>
+                        <dt class="col-sm-4">Dirección:</dt>
+                        <dd class="col-sm-8">@Model.Direccion</dd>
+                        <dt class="col-sm-4">Precio/Noche:</dt>
+                        <dd class="col-sm-8">$@Model.PrecioNoche.ToString("N2")</dd>
+                    </dl>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle"></i>
+                        Esta acción también eliminará todas las reservas asociadas a este hotel.
+                    </div>
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Sí, Eliminar
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
