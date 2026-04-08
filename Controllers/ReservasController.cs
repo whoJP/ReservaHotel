@@ -21,7 +21,6 @@ namespace ReservaHotel.Controllers
             _userManager = userManager;
         }
 
-        // GET: Reservas — Lista las reservas del usuario actual
         public async Task<IActionResult> Index()
         {
             var userId = _userManager.GetUserId(User);
@@ -29,7 +28,6 @@ namespace ReservaHotel.Controllers
 
             if (User.IsInRole("Administrador"))
             {
-                // Admin ve TODAS las reservas
                 reservas = _context.Reservas
                     .Include(r => r.Hotel)
                     .Include(r => r.Usuario)
@@ -37,7 +35,6 @@ namespace ReservaHotel.Controllers
             }
             else
             {
-                // Cliente solo ve sus reservas
                 reservas = _context.Reservas
                     .Include(r => r.Hotel)
                     .Include(r => r.Usuario)
@@ -48,7 +45,6 @@ namespace ReservaHotel.Controllers
             return View(await reservas.ToListAsync());
         }
 
-        // GET: Reservas/Create
         [Authorize(Roles = "Cliente")]
         public IActionResult Create()
         {
@@ -56,24 +52,59 @@ namespace ReservaHotel.Controllers
             return View();
         }
 
-        // POST: Reservas/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Cliente")]
         public async Task<IActionResult> Create([Bind("FechaInicio,FechaFin,HotelId")] Reserva reserva)
         {
-            // Validación: fecha de fin mayor a fecha de inicio
-            if (reserva.FechaFin <= reserva.FechaInicio)
+            // Quitar propiedades de navegación del ModelState para que no interfieran
+            ModelState.Remove("Usuario");
+            ModelState.Remove("UsuarioId");
+            ModelState.Remove("Hotel");
+
+            // ── Validaciones de fechas ──────────────────────────────
+
+            // Fechas nulas
+            if (reserva.FechaInicio == default)
             {
-                ModelState.AddModelError("FechaFin",
-                    "La fecha de fin debe ser posterior a la fecha de inicio.");
+                ModelState.AddModelError("FechaInicio", "La fecha de inicio es obligatoria.");
             }
 
-            // Validación: no permitir reservas en fechas pasadas
-            if (reserva.FechaInicio < DateTime.Today)
+            if (reserva.FechaFin == default)
             {
-                ModelState.AddModelError("FechaInicio",
-                    "No puedes hacer reservas en fechas pasadas.");
+                ModelState.AddModelError("FechaFin", "La fecha de fin es obligatoria.");
+            }
+
+            if (reserva.FechaInicio != default && reserva.FechaFin != default)
+            {
+                // Fecha inicio no puede ser pasada
+                if (reserva.FechaInicio < DateTime.Today)
+                {
+                    ModelState.AddModelError("FechaInicio",
+                        "La fecha de inicio no puede ser una fecha pasada.");
+                }
+
+                // Fecha inicio no mayor a 1 año desde hoy
+                if (reserva.FechaInicio > DateTime.Today.AddYears(1))
+                {
+                    ModelState.AddModelError("FechaInicio",
+                        "La fecha de inicio no puede ser mayor a 1 año desde hoy.");
+                }
+
+                // Fecha fin debe ser estrictamente mayor a fecha inicio (mínimo 1 noche)
+                if (reserva.FechaFin <= reserva.FechaInicio)
+                {
+                    ModelState.AddModelError("FechaFin",
+                        "La fecha de fin debe ser posterior a la fecha de inicio (mínimo 1 noche).");
+                }
+
+                // Máximo 30 días de reserva
+                if (reserva.FechaFin > reserva.FechaInicio &&
+                    (reserva.FechaFin - reserva.FechaInicio).Days > 30)
+                {
+                    ModelState.AddModelError("FechaFin",
+                        "La reserva no puede superar los 30 días.");
+                }
             }
 
             if (ModelState.IsValid)
@@ -89,7 +120,6 @@ namespace ReservaHotel.Controllers
             return View(reserva);
         }
 
-        // GET: Reservas/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -103,14 +133,12 @@ namespace ReservaHotel.Controllers
 
             if (reserva == null) return NotFound();
 
-            // Solo el dueño o el admin pueden ver/eliminar
             if (reserva.UsuarioId != userId && !User.IsInRole("Administrador"))
                 return Forbid();
 
             return View(reserva);
         }
 
-        // POST: Reservas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
